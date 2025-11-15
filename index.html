@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Видео · Лекция · Тесты — Present Simple</title>
+<style>
+  :root{--bg:#f7f8fb;--card:#fff;--accent:#2572ff;--muted:#666}
+  body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); margin:0; color:#111}
+  .wrap{max-width:980px;margin:28px auto;padding:20px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  h1{font-size:20px;margin:0}
+  .tabs{display:flex;gap:8px;margin-bottom:18px}
+  .tab{background:var(--card);padding:10px 14px;border-radius:10px;cursor:pointer;box-shadow:0 1px 4px rgba(15,20,30,0.05);border:1px solid rgba(0,0,0,0.04)}
+  .tab.active{background:linear-gradient(180deg,var(--accent),#1d5fe8);color:white;box-shadow:0 6px 18px rgba(37,114,255,0.18)}
+  .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(12,18,30,0.04);min-height:320px}
+  /* video */
+  .video-wrap{display:flex;flex-direction:column;gap:12px}
+  iframe{width:100%;height:420px;border-radius:8px;border:0;background:#000}
+  /* lecture */
+  .lecture{line-height:1.6;color:#111}
+  .lecture h2{margin-top:0}
+  /* quiz */
+  .question{margin-bottom:14px;padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,0.04)}
+  .opts{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .opt{padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
+  .opt:hover{background:rgba(0,0,0,0.02)}
+  .opt.correct{outline:3px solid rgba(46,186,125,0.12)}
+  .opt.wrong{opacity:0.6;outline:3px solid rgba(255,74,87,0.08)}
+  .controls{display:flex;gap:8px;align-items:center;margin-top:14px}
+  button{background:var(--accent);color:white;border:0;padding:10px 14px;border-radius:8px;cursor:pointer}
+  button.secondary{background:#eee;color:#111}
+  .small{font-size:13px;color:var(--muted)}
+  .hide{display:none}
+  footer{margin-top:18px;color:var(--muted);font-size:13px}
+  @media (max-width:720px){ iframe{height:220px} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Курс: Present Simple — Видео · Лекция · Тесты</h1>
+    </header>
+
+    <div class="tabs" role="tablist" aria-label="tabs">
+      <div class="tab active" data-tab="video" role="tab">Видео</div>
+      <div class="tab" data-tab="lecture" role="tab">Лекция</div>
+      <div class="tab" data-tab="quiz" role="tab">Тесты</div>
+    </div>
+
+    <div class="card" id="panel-video" role="tabpanel">
+      <div class="video-wrap">
+        <!-- Заменяй ссылку на своё видео (YouTube embed) -->
+        <iframe id="videoFrame" src="https://www.youtube.com/embed/ruQm1z4QZ9A" title="Видео по Present Simple"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+        <div class="small">Замените URL в атрибуте <code>src</code> iframe на ваш YouTube-embed (пример: https://www.youtube.com/embed/VIDEO_ID)</div>
+      </div>
+    </div>
+
+    <div class="card hide" id="panel-lecture" role="tabpanel">
+      <div class="lecture" contenteditable="false">
+        <h2>Present Simple — краткая лекция</h2>
+        <p><strong>Когда используем:</strong> факты, привычки, расписания, постоянные состояния. Ассоциация — «обычно, всегда».</p>
+        <p><strong>Формула:</strong> I/You/We/They + verb, He/She/It + verb + s/es.</p>
+        <p><strong>Отрицание:</strong> do not / does not + verb (He/She/It → doesn't + verb).</p>
+        <p><strong>Вопрос:</strong> Do/Does + subject + verb?</p>
+        <h3>Частотные слова</h3>
+        <p>always, usually, often, sometimes, rarely, never — обычно ставятся перед глаголом (кроме to be).</p>
+        <h3>Глагол to be</h3>
+        <p>I am, You/We/They are, He/She/It is — особый случай.</p>
+        <p>Правь этот текст прямо в HTML: заменяй содержание блока <code>&lt;div class="lecture"&gt;</code>.</p>
+      </div>
+    </div>
+
+    <div class="card hide" id="panel-quiz" role="tabpanel">
+      <div id="quizRoot">
+        <div id="qContainer"></div>
+
+        <div class="controls">
+          <button id="prevBtn" class="secondary">Предыдущий</button>
+          <button id="nextBtn">Следующий</button>
+          <div style="margin-left:auto" class="small" id="scoreText">Вопрос 1 из 10</div>
+        </div>
+
+        <div style="margin-top:12px" class="small">После завершения теста появится количество правильных ответов.</div>
+      </div>
+    </div>
+
+    <footer>Файл прост в редактировании: изменяй video src, текст лекции и массив вопросов внизу скрипта.</footer>
+  </div>
+
+<script>
+/* TABS */
+const tabs = document.querySelectorAll('.tab');
+const panels = {
+  video: document.getElementById('panel-video'),
+  lecture: document.getElementById('panel-lecture'),
+  quiz: document.getElementById('panel-quiz')
+};
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const tab = t.dataset.tab;
+  Object.keys(panels).forEach(k => panels[k].classList.add('hide'));
+  panels[tab].classList.remove('hide');
+}));
+
+/* QUIZ: структура вопросов — редактируй здесь */
+const questions = [
+  {q:"She ___ to school every day.", opts:["go","goes","going","is go"], answer:1},
+  {q:"___ you like pizza?", opts:["Does","Do","Are","Is"], answer:1},
+  {q:"He ___ play football.", opts:["doesn’t","don’t","isn’t","not"], answer:0},
+  {q:"Choose correct: She ___ work on Sundays.", opts:["don’t","doesn’t works","doesn’t work","not"], answer:2},
+  {q:"I ___ TV in the evening.", opts:["watch","watches","watching","am watch"], answer:0},
+  {q:"Choose correct question: Do ___ live in London?", opts:["he","him","his","they"], answer:0},
+  {q:"My train ___ at 7:00.", opts:["leave","leaves","leaving","is leave"], answer:1},
+  {q:"Why ___ you like this movie?", opts:["doesn’t","don’t","aren’t","isn’t"], answer:1},
+  {q:"Water ___ at 100°C.", opts:["boils","boil","boiling","is boils"], answer:0},
+  {q:"___ she usually get up early?", opts:["Do","Does","Is","Has"], answer:1}
+];
+
+/* QUIZ: render + logic */
+let cur = 0, correct = 0, answered = Array(questions.length).fill(false);
+
+function renderQuestion(index){
+  const container = document.getElementById('qContainer');
+  container.innerHTML = '';
+  const item = questions[index];
+  const qEl = document.createElement('div');
+  qEl.className = 'question';
+  qEl.innerHTML = `<strong>Q${index+1}.</strong> ${item.q}`;
+  container.appendChild(qEl);
+
+  const opts = document.createElement('div'); opts.className='opts';
+  item.opts.forEach((o,i)=> {
+    const b = document.createElement('div');
+    b.className = 'opt';
+    b.tabIndex = 0;
+    b.textContent = `${String.fromCharCode(65+i)}. ${o}`;
+    b.addEventListener('click', ()=>selectOption(index,i,b));
+    opts.appendChild(b);
+  });
+  container.appendChild(opts);
+
+  document.getElementById('scoreText').textContent = `Вопрос ${index+1} из ${questions.length}`;
+}
+
+function selectOption(qIndex,optIndex,btnEl){
+  if(answered[qIndex]) return; // нельзя менять ответ
+  answered[qIndex] = true;
+  const optsEls = document.querySelectorAll('#qContainer .opt');
+  optsEls.forEach((el, i)=>{
+    if(i===questions[qIndex].answer) el.classList.add('correct');
+    if(i===optIndex && i!==questions[qIndex].answer) el.classList.add('wrong');
+    el.style.pointerEvents = 'none';
+  });
+  if(optIndex===questions[qIndex].answer) correct++;
+  // если это был последний вопрос — покажем результат
+  if(answered.every(Boolean)){
+    setTimeout(()=>showResult(), 500);
+  }
+}
+
+function showResult(){
+  const container = document.getElementById('qContainer');
+  container.innerHTML = `<div class="question"><h3>Результат: ${correct} / ${questions.length}</h3>
+    <p class="small">Перезагрузите страницу, чтобы пройти снова, или используйте стрелки.</p></div>`;
+}
+
+/* next / prev */
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(cur < questions.length-1) cur++;
+  renderQuestion(cur);
+});
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(cur > 0) cur--;
+  renderQuestion(cur);
+});
+
+/* старт */
+renderQuestion(cur);
+
+/* ПРИМЕЧАНИЕ: чтобы изменить вопросы — редактируй массив `questions` выше.
+   Структура: { q: "текст вопроса", opts: ["A","B","C","D"], answer: индекс_правильного_варианта } */
+</script>
+</body>
+</html>
